@@ -1,6 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import tornado.log
+
 import os
 
 from jinja2 import \
@@ -21,7 +22,7 @@ class MainHandler(TemplateHandler):
     self.set_header(
       'Cache-Control',
       'no-store, no-cache, must-revalidate, max-age=0')
-    name = self.get_query_argument('name', 'world')
+    name = self.get_query_argument('name', 'Nobody')
     amount = self.get_query_argument('amount', '0')
     amount = float(amount)
     amount = amount * 1.15
@@ -38,7 +39,7 @@ class Page2Handler(TemplateHandler):
     self.set_header(
       'Cache-Control',
       'no-store, no-cache, must-revalidate, max-age=0')
-    self.render_template("hello.html", {})
+    self.render_template("page2.html", {})
     
 def make_app():
   return tornado.web.Application([
@@ -58,4 +59,4 @@ if __name__ == "__main__":
   PORT = int(os.environ.get('PORT', '8000'))
   app.listen(PORT)
   tornado.ioloop.IOLoop.current().start()
-
+  

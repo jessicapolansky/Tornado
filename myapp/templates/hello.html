@@ -1,7 +1,16 @@
+
 {% extends "base.html" %}
+{% block title %}Narf{% endblock %}
+{% block navbar %}
+{{ super() }}
+NEw navbar
+{% endblock %}
 {% block content %}
-    
-<html><title>TestTornado</title></html><body>
-<h1>Hello {{ name }}</h1>
-</body>
+    <h2>Total: {{ amount|round }}</h2>
+    <h1>Members</h1>
+    <ul>
+    {% for user in users %}
+      <li>{{ user }}</li>
+    {% endfor %}
+    </ul>
 {% endblock %}
