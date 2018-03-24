@@ -1,33 +1,61 @@
 import tornado.ioloop
 import tornado.web
 import tornado.log
+import os
 
-class MainHandler(tornado.web.RequestHandler):
+from jinja2 import \
+  Environment, PackageLoader, select_autoescape
+
+ENV = Environment(
+  loader=PackageLoader('myapp', 'templates'),
+  autoescape=select_autoescape(['html', 'xml'])
+)
+
+class TemplateHandler(tornado.web.RequestHandler):
+  def render_template (self, tpl, context):
+    template = ENV.get_template(tpl)
+    self.write(template.render(**context))
+
+class MainHandler(TemplateHandler):
   def get(self):
-    self.set_header("Content-Type", 'text/plain')
-    self.write("Hello world!")
+    self.set_header(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, max-age=0')
+    name = self.get_query_argument('name', 'world')
+    amount = self.get_query_argument('amount', '0')
+    amount = float(amount)
+    amount = amount * 1.15
     
-class YouHandler(tornado.web.RequestHandler):
-  def get(self, name):
-    self.set_header("Content-Type", 'text/plain')
-    self.write("Hello, {}".format(name))
-    
-class YouTooHandler(tornado.web.RequestHandler):
+    context = {
+        'name': name,
+        'users': ['paul', 'mittens'],
+        'amount': amount
+    }
+    self.render_template("hello.html", context)
+
+class Page2Handler(TemplateHandler):
   def get(self):
-    self.set_header("Content-Type", 'text/plain')
-    names = self.get_query_arguments('name')
-    for name in names:
-      self.write("Hello, {}".format(name))
+    self.set_header(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, max-age=0')
+    self.render_template("hello.html", {})
     
 def make_app():
   return tornado.web.Application([
     (r"/", MainHandler),
-    (r"/hello2", YouTooHandler),
-    (r"/hello/(.*)", YouHandler),
+    (r"/page2", Page2Handler),
+    (
+      r"/static/(.*)",
+      tornado.web.StaticFileHandler,
+      {'path': 'static'}
+    ),
   ], autoreload=True)
   
 if __name__ == "__main__":
   tornado.log.enable_pretty_logging()
+  
   app = make_app()
-  app.listen(8000)
+  PORT = int(os.environ.get('PORT', '8000'))
+  app.listen(PORT)
   tornado.ioloop.IOLoop.current().start()
+
