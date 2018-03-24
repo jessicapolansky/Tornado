@@ -34,17 +34,25 @@ class MainHandler(TemplateHandler):
     }
     self.render_template("hello.html", context)
 
-class Page2Handler(TemplateHandler):
+class AboutHandler(TemplateHandler):
   def get(self):
     self.set_header(
       'Cache-Control',
       'no-store, no-cache, must-revalidate, max-age=0')
-    self.render_template("page2.html", {})
+    self.render_template("About.html", {})
+    
+class BlogHandler(TemplateHandler):
+  def get(self):
+    self.set_header(
+      'Cache-Control',
+      'no-store, no-cache, must-revalidate, max-age=0')
+    self.render_template("Blog.html", {})
     
 def make_app():
   return tornado.web.Application([
     (r"/", MainHandler),
-    (r"/page2", Page2Handler),
+    (r"/About.html", AboutHandler),
+    (r"/Blog.html", BlogHandler),
     (
       r"/static/(.*)",
       tornado.web.StaticFileHandler,
